@@ -91,5 +91,5 @@ for cell in branch_stratification(expr, ctx):
 
 ## Citation
 
-If you use this model, cite the accompanying paper draft. Once a Zenodo release
-exists, cite the archived repository DOI as well.
+If you use this model, please cite the accompanying paper and the Zenodo record
+linked in the repository sidebar.
