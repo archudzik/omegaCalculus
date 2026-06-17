@@ -1,102 +1,95 @@
-# Ωε-Calculus
+# omega-calculus
 
-Reference implementation of the Ωε-calculus, a total term-rewriting system with distinguished constants governing symbolic resolution.
+Reference implementation for the paper
+**Omega-Calculus: Normal Forms and Branch Semantics for Scale-Promoting Division**.
 
-## Overview
+This package is a small executable model of the paper's algebraic and semantic
+core. It is intended for reproducibility, examples, and regression tests, not as
+a general-purpose computer algebra system.
 
-The calculus introduces two constants, Ω and ε, governed by the rewrite rule ε · Ω → 1. All operations are total: every ground term reduces to a unique normal form. Expressions traditionally regarded as undefined (such as 1/0 or 0/0) are treated as well-formed terms with specified rewrite behavior.
+## Implemented semantics
 
-## Requirements
+The package implements the total binary operation
 
-- Python 3.x
-
-## Installation
-
-No external dependencies required. Clone the repository:
-
-```
-git clone https://github.com/archudzik/OmegaEpsilonCalculus.git
-cd OmegaEpsilonCalculus
+```text
+a oslash b = a / b   if b != 0
+a oslash b = a Omega if b == 0
 ```
 
-## Usage
+over rational functions in `Q(Omega, x1, ..., xn)`.
 
-Run the demonstration:
+It includes:
 
-```
-python calculus.py
-```
+- generic evaluation into rational-function normal forms;
+- specialization-aware pointwise evaluation;
+- trace semantics recording zero/nonzero branch events;
+- guarded branch stratification;
+- Omega-degree calculations;
+- the zero-sensitive cancellation law;
+- reverse Polish notation helpers.
 
-## Output
+## Scope
 
-```
-=== Ωε-CALCULUS ===
+The implementation follows the paper's event-based semantics. Each occurrence
+of `oslash` contributes at most one branch event. It does not compute orders of
+vanishing, valuation refinements, confluence for arbitrary rewrite systems, or
+bit-complexity bounds for symbolic normalization.
 
-Primitive rules:
-         1 / 0  →  Ω
-         1 / Ω  →  ε
-         ε · Ω  →  1
-         Ω · ε  →  1
-         0 · Ω  →  0
+## Quick example
 
-Power and scaling rules:
-         Ω · Ω  →  Ω²
-         Ω / ε  →  Ω²
-        ε · Ω³  →  Ω²
-   (3/2·Ω) · ε  →  3/2
+```python
+from omega_calculus import OmegaContext, generic, oslash, pointwise, trace, var
 
-Closure (no undefined forms):
-         0 / 0  →  0
-         Ω / Ω  →  1
-         ε / ε  →  1
-```
+ctx = OmegaContext(n=1)
+x1 = var(1)
+T = oslash(x1, x1)
 
-## Rewrite Rules
-
-### Primitive Rules
-
-| Rule      | Description                |
-| --------- | -------------------------- |
-| 1 / 0 → Ω | Division by zero yields Ω  |
-| 1 / Ω → ε | Reciprocal of Ω is ε       |
-| ε · Ω → 1 | Core identity              |
-| 0 · t → 0 | Zero absorption            |
-| 0 / 0 → 0 | Closure                    |
-| t / t → 1 | Self-division (t ∈ {Ω, ε}) |
-
-### Power and Scaling Rules
-
-| Rule            | Description             |
-| --------------- | ----------------------- |
-| Ω · Ω → Ω²      | Power formation         |
-| Ωᵐ · Ωⁿ → Ωᵐ⁺ⁿ  | Power combination       |
-| ε · Ωⁿ → Ωⁿ⁻¹   | Power reduction (n ≥ 2) |
-| Ω / ε → Ω²      | Division by ε           |
-| (c · Ω) · ε → c | Scaled collapse (c ∈ ℚ) |
-
-## External Interpretation
-
-The calculus admits external interpretations. Given a resolution unit δ > 0:
-
-```
-⟦ε⟧ = δ,  ⟦Ω⟧ = 1/δ
+assert generic(T, ctx) == 1
+assert pointwise(T, {1: 0}, ctx) == 0
+assert trace(T, {1: 0}, ctx).signature == (0,)
 ```
 
-For example, taking δ as the Planck length (≈ 1.616 × 10⁻³⁵ m) yields Ω as the number of Planck lengths per meter.
+## Install
 
-## License
+From this directory:
 
-This project is licensed under the MIT License.
+```bash
+python -m pip install -e .
+```
+
+For running the test suite:
+
+```bash
+python -m pip install -e ".[test]"
+python -m pytest
+```
+
+The only runtime dependency is `sympy`.
+
+## Repository layout
+
+```text
+omega_calculus/   package source
+tests/            regression tests for the paper examples and laws
+examples/         small usage scripts
+pyproject.toml    install and test metadata
+```
+
+## Minimal usage
+
+```python
+from omega_calculus import OmegaContext, branch_stratification, oslash, var
+
+ctx = OmegaContext(n=2)
+x1 = var(1)
+x2 = var(2)
+
+expr = oslash(1, x1) + oslash(1, x2)
+for cell in branch_stratification(expr, ctx):
+    print(cell.signature, cell.equations, cell.inequations, cell.formula)
+```
 
 ## Citation
 
-If you use this work, please cite:
-
-```
-@misc{chudzik2025omegaepsilon,
-  author = {Chudzik, Artur},
-  title = {The Ωε-Calculus},
-  year = {2025},
-  url = {https://github.com/archudzik/OmegaEpsilonCalculus}
-}
-```
+If you use this model, cite the accompanying paper draft. Once a Zenodo release
+exists, cite the archived repository DOI as well.
