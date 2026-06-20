@@ -25,6 +25,9 @@ class Expr:
     def __rmul__(self, other: Any) -> Expr:
         return Mul(as_expr(other), self)
 
+    def __pow__(self, exponent: int) -> Expr:
+        return pow_expr(self, exponent)
+
     def oslash(self, other: Any) -> Expr:
         return Oslash(self, as_expr(other))
 
@@ -88,3 +91,22 @@ def as_expr(value: Any) -> Expr:
     if isinstance(value, Expr):
         return value
     return const(value)
+
+
+def pow_expr(base: Any, exponent: int) -> Expr:
+    if isinstance(exponent, bool) or not isinstance(exponent, int):
+        raise TypeError("expression powers require a nonnegative integer exponent")
+    if exponent < 0:
+        raise ValueError(
+            "negative expression powers are not part of the core syntax; "
+            "use oslash(1, expr ** k) for reciprocal powers"
+        )
+
+    base_expr = as_expr(base)
+    if exponent == 0:
+        return const(1)
+
+    result = base_expr
+    for _ in range(exponent - 1):
+        result = Mul(result, base_expr)
+    return result

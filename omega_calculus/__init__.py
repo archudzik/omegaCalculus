@@ -1,7 +1,7 @@
 from .branches import BranchCell, branch_stratification
 from .context import OmegaContext
 from .degree import NEG_INF, omega_degree
-from .expr import Expr, const, omega, oslash, var
+from .expr import Expr, const, omega, oslash, pow_expr, var
 from .generic import generic, oslash_value
 from .laws import chi, zero_sensitive_cancellation
 from .pointwise import pointwise
@@ -25,6 +25,7 @@ __all__ = [
     "omega",
     "omega_degree",
     "oslash",
+    "pow_expr",
     "oslash_value",
     "pointwise",
     "to_rpn",

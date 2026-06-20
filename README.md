@@ -31,9 +31,19 @@ It includes:
 ## Scope
 
 The implementation follows the paper's event-based semantics. Each occurrence
-of `oslash` contributes at most one branch event. It does not compute orders of
-vanishing, valuation refinements, confluence for arbitrary rewrite systems, or
-bit-complexity bounds for symbolic normalization.
+of `oslash` contributes at most one branch event. Powers of expression nodes are
+expanded as repeated multiplication, not as repeated division events. Thus
+`oslash(1200, r ** 6)` has one possible zero branch, while six successive calls to
+`oslash(..., r)` have six possible zero branches.
+
+Use `var(i)` and `omega()` to build syntax-sensitive expressions for pointwise
+and trace semantics. Raw SymPy expressions are accepted as constants; they are
+useful for generic algebra, but their internal symbols are not substituted by the
+AST evaluator.
+
+The package does not compute orders of vanishing, valuation refinements,
+confluence for arbitrary rewrite systems, or bit-complexity bounds for symbolic
+normalization.
 
 ## Quick example
 
@@ -47,6 +57,27 @@ T = oslash(x1, x1)
 assert generic(T, ctx) == 1
 assert pointwise(T, {1: 0}, ctx) == 0
 assert trace(T, {1: 0}, ctx).signature == (0,)
+```
+
+
+## Powers and branch events
+
+```python
+from omega_calculus import OmegaContext, oslash, pointwise, trace, var
+
+ctx = OmegaContext(n=1)
+r = var(1)
+
+expr = oslash(1200, r ** 6)
+assert pointwise(expr, {1: 0}, ctx) == 1200 * ctx.Omega
+assert trace(expr, {1: 0}, ctx).signature == (0,)
+
+repeated = 1200
+for _ in range(6):
+    repeated = oslash(repeated, r)
+
+assert pointwise(repeated, {1: 0}, ctx) == 1200 * ctx.Omega**6
+assert trace(repeated, {1: 0}, ctx).signature == (0, 0, 0, 0, 0, 0)
 ```
 
 ## Install
