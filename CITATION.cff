@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite this repository."
+type: software
+title: "omegaCalculus: Reference Implementation of Omega-Calculus"
+authors:
+  - family-names: "Chudzik"
+    given-names: "Artur"
+repository-code: "https://github.com/archudzik/omegaCalculus"
