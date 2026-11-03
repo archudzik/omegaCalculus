@@ -124,3 +124,7 @@ for cell in branch_stratification(expr, ctx):
 
 If you use this model, please cite the accompanying paper and the Zenodo record
 linked in the repository sidebar.
+
+## License
+
+The original Python implementation, examples and tests are released under the MIT License (see `LICENSE`). The accompanying paper is a separate scholarly work and is not relicensed by this repository's software license.
